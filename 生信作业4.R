@@ -1,0 +1,35 @@
+sumx<-sum(leastsquaredata$X)
+sumxsuqare<-sum((leastsquaredata$X)^2)
+sumy<-sum(leastsquaredata$Y)
+sumysuqare<-sum((leastsquaredata$Y)^2)
+sumxy<-sum(leastsquaredata$X*leastsquaredata$Y)
+n<-nrow(leastsquaredata)
+ssx<-sumxsuqare-sumx^2/n
+ssy<-sumysuqare-sumy^2/n
+SP<-sumxy-(sumx*sumy)/n
+meanx<-sumx/n
+meany<-sumy/n
+b<-SP/ssx
+a<-meany-b*meanx
+print(a)
+print(b)
+y<-array()
+for (i in 1:300) {
+  y[i]<-a+b*i
+}
+x<-1:300
+plot(leastsquaredata$X,leastsquaredata$Y)
+lines(x,y)
+inputx<-function(x){
+  y=a+b*x
+  paste("y=",y)
+}
+inputy<-function(y){
+  x=(y-a)/b
+  paste("x=",x)
+}
+if(b<0){
+  paste("直线回归方程为：y=",a,b,"*x")
+}else{
+  paste("直线回归方程为：y=",a,"+",b,"*x")
+}

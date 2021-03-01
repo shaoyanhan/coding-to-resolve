@@ -1,0 +1,71 @@
+install.packages("deSolve")
+require(deSolve)
+
+state<-c(Gluc=0,Glyc=0,Gluc1P=0,Gluc6P=0,Fruc6P=0,Fruc16P2=0,DihydroP=0,Glycer3P=0,BPG13=0,
+         PG3=0,PG2=0,PPPyru=0,Pyru=0,Lactic=0,AH=0,Ethanol=0,ATP=0.5,ADP=0.5,NAD=0.5,NADH_H=0.5)
+
+parameters<-c(k1=0.25,k4=0.25,k11=0.25,
+              k2=1,k5=1,k6=1,k_6=1,k7=1,k_7=1,k8=1,k10=1,k12=1,k_12=1,k13=1,k14=1,k15=1,k16=1,k17=1,k18=1,
+              k19=1,k_19=1,k20=1,k_20=1,k21=1,k22=1,k23=1,k24=1,k25=1,k26=1,k27=1,k28=1,k29=1,
+              k3=0.75,k9=0.75)
+SODmodel<-function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    v1=k1
+    v2=k2*Gluc*ATP
+    v3=k3*ADP
+    v4=k4
+    v5=k5*Glyc
+    v6=k6*Gluc1P-k_6*Gluc6P
+    v7=k7*Gluc6P-k_7*Fruc6P
+    v8=k8*Fruc6P*ATP
+    v9=k9*ADP
+    v10=k10*Fruc16P2
+    v11=k11
+    v12=k12*DihydroP-k_12*Glycer3P
+    v13=k13*Glycer3P*ATP
+    v14=BPG13*k14
+    v15=k15*Glycer3P*NAD
+    v16=k16*BPG13*NADH_H
+    v17=BPG13*k17*ADP
+    v18=PG3*k18*ATP
+    v19=k19*PG3-k_19*PG2
+    v20=k20*PG2-k_20*PPPyru
+    v21=k21*PPPyru*ADP
+    v22=k22*Pyru*ATP
+    v23=k23*Pyru
+    v24=k24*AH*NADH_H
+    v25=k25*Ethanol*NAD
+    v26=Ethanol*k26
+    v27=k27*Pyru*NADH_H
+    v28=k28*Lactic*NAD
+    v29=k29*Lactic
+    
+    dGluc<-v1-v2
+    dGlyc<-v4-v5
+    dGluc1P<-v5-v6
+    dGluc6P<-v2+v6-v7
+    dFruc6P<-v7-v8+v9
+    dFruc16P2<-v8-v10
+    dDihydroP<-v11-v12
+    dGlycer3P<-v10-v15+v16-v13+v14
+    dBPG13<-v15-v16+v13-v14-v17+v18
+    dPG3<-v17-v18-v19
+    dPG2<-v19-v20
+    dPPPyru<-v20-v21+v22
+    dPyru<-v21-v22-v23-v27+v28
+    dLactic<-v27-v28-v29
+    dAH<-v23-v24+v25
+    dEthanol<-v24-v25-v26
+    dATP<-v3-v2+v9-v8+v17-v13-v18+v21-v22
+    dADP<-v2-v3+v8-v9+v13+v18-v17-v21+v22
+    dNAD<-v16-v15+v27-v28+v24-v25
+    dNADH_H<-v15-v16+v28-v27+v25-v24
+    list(c(dGluc,dGlyc,dGluc1P,dGluc6P,dFruc6P,dFruc16P2,dDihydroP,dGlycer3P,dBPG13,
+           dPG3,dPG2,dPPPyru,dPyru,dLactic,dAH,dEthanol,dATP,dADP,dNAD,dNADH_H))
+  })
+}
+
+
+times<-seq(0,200,by=0.01)
+out<-ode(y=state,times = times,func = SODmodel,parms = parameters)
+head(out)
